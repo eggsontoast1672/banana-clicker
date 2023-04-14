@@ -1,71 +1,102 @@
 #include <stdio.h>
-#include <stdint.h>
 
-#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 
-#define BCLK_APP_TITLE "Banana Clicker"
-#define BCLK_SCREEN_WIDTH 800
-#define BCLK_SCREEN_HEIGHT 600
+#include "renderer.h"
+
+#define BC_FILE(filename) BC_SOURCE_DIR "/" filename
 
 typedef struct {
-    SDL_Window   *window;
-    SDL_Renderer *renderer;
-    uint8_t       running;
-} BclkAppState;
+    SDL_Texture *texture;
+    BcWindow     window;
+    BcRenderer   renderer;
+    uint8_t      running;
+} BcAppState;
 
-static void bclk_initialize(BclkAppState *state);
-static void bclk_quit(BclkAppState *state);
-static void bclk_update(BclkAppState *state);
+static void bc_draw(BcAppState *state);
+static void bc_initialize(BcAppState *state);
+static void bc_quit(BcAppState *state);
+static void bc_update(BcAppState *state);
 
 int main(void)
 {
-    BclkAppState state;
+    /* TODO: Use atexit */
+
+    BcAppState state;
 
     state.running = 1;
 
-    bclk_initialize(&state);
+#ifndef NDEBUG
+    fprintf(stderr, "[DEBUG] BC_SOURCE_DIR = %s\n", BC_SOURCE_DIR);
+    fprintf(stderr, "[DEBUG] BC_FILE(\"test\") = %s\n", BC_FILE("test"));
+#endif
+
+    bc_initialize(&state);
 
     while (state.running) {
-        bclk_update(&state);
+        bc_update(&state);
+        bc_draw(&state);
     }
 
-    bclk_quit(&state);
+    bc_quit(&state);
 
     return 0;
 }
 
-static void bclk_initialize(BclkAppState *state)
+static void bc_draw(BcAppState *state)
 {
+    bc_renderer_clear(state->renderer);
+    bc_renderer_copy(state->renderer, state->texture);
+    bc_renderer_present(state->renderer);
+}
+
+static void bc_initialize(BcAppState *state)
+{
+    int flags;
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         fprintf(stderr, "Failed to initialize SDL: %s\n", SDL_GetError());
         exit(1);
     }
-    state->window = SDL_CreateWindow(BCLK_APP_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, BCLK_SCREEN_WIDTH, BCLK_SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    if (state->window == NULL) {
-        fprintf(stderr, "Failed to create window: %s\n", SDL_GetError());
-        bclk_quit(state);
+
+    flags = IMG_INIT_PNG;
+    if (IMG_Init(flags) != flags) {
+        fprintf(stderr, "Failed to initialize SDL image: %s\n", IMG_GetError());
+        bc_quit(state);
         exit(1);
     }
-    state->renderer = SDL_CreateRenderer(state->window, -1, 0);
-    if (state->renderer == NULL) {
-        fprintf(stderr, "Failed to create renderer: %s\n", SDL_GetError());
-        bclk_quit(state);
+
+    state->window = bc_window_create();
+    if (!state->window.created) {
+        bc_quit(state);
+        exit(1);
+    }
+
+    state->renderer = bc_renderer_create(state->window);
+    if (!state->renderer.created) {
+        bc_quit(state);
+        exit(1);
+    }
+
+    state->texture = IMG_LoadTexture(state->renderer.data, BC_FILE("banana.png"));
+    if (state->texture == NULL) {
+        fprintf(stderr, "Failed to load texture: %s\n", IMG_GetError());
+        bc_quit(state);
         exit(1);
     }
 }
 
-static void bclk_quit(BclkAppState *state)
+static void bc_quit(BcAppState *state)
 {
-    if (state->window) {
-        SDL_DestroyWindow(state->window);
-    }
-    if (state->renderer) {
-        SDL_DestroyRenderer(state->renderer);
+    bc_window_destroy(state->window);
+    if (state->texture) {
+        SDL_DestroyTexture(state->texture);
     }
     SDL_Quit();
+    IMG_Quit();
 }
 
-static void bclk_update(BclkAppState *state)
+static void bc_update(BcAppState *state)
 {
     SDL_Event event;
 
