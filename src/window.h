@@ -1,7 +1,7 @@
 #ifndef BC_WINDOW_H
 #define BC_WINDOW_H
 
-#include <bits/stdint-uintn.h>
+#include <stdint.h>
 
 #include <SDL2/SDL_video.h>
 
@@ -13,7 +13,7 @@ typedef struct {
     SDL_Window *data;
 } BcWindow;
 
-BcWindow bc_window_create(void);
-void bc_window_destroy(BcWindow window);
+BcWindow *bc_window_create(void);
+void bc_window_destroy(BcWindow *window);
 
 #endif
