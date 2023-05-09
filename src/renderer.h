@@ -1,24 +1,24 @@
 #ifndef BC_RENDERER_H
 #define BC_RENDERER_H
 
-#include <stdint.h>
-
 #include <SDL2/SDL_render.h>
 
+#include "rect.h"
+#include "types.h"
 #include "window.h"
 
 typedef struct {
-    uint8_t       created;
+    u8            created;
     SDL_Renderer *data;
 } BcRenderer;
 
 typedef struct {
-    uint8_t      created;
+    u8           created;
     SDL_Texture *data;
 } BcTexture;
 
 void        bc_renderer_clear(BcRenderer *self);
-void        bc_renderer_copy(BcRenderer *self, BcTexture *texture);
+void        bc_renderer_copy(BcRenderer *self, BcTexture *texture, BcRect rect);
 BcRenderer *bc_renderer_create(BcWindow* window);
 void        bc_renderer_destroy(BcRenderer *self);
 void        bc_renderer_present(BcRenderer *self);

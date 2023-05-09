@@ -69,4 +69,5 @@ void bc_game_update(BcAppState *state)
             state->running = 0;
         }
     }
+    bc_banana_update(state->banana);
 }

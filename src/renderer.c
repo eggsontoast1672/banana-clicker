@@ -5,6 +5,7 @@
 
 #include <SDL2/SDL_error.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_rect.h>
 
 void bc_renderer_clear(BcRenderer *self)
 {
@@ -12,10 +13,16 @@ void bc_renderer_clear(BcRenderer *self)
     SDL_RenderClear(self->data);
 }
 
-void bc_renderer_copy(BcRenderer *self, BcTexture *texture)
+void bc_renderer_copy(BcRenderer *self, BcTexture *texture, BcRect rect)
 {
     /* TODO: Add error handling */
-    SDL_RenderCopy(self->data, texture->data, NULL, NULL);
+    SDL_Rect dstrect;
+
+    dstrect.x = rect.x;
+    dstrect.y = rect.y;
+    dstrect.w = rect.w;
+    dstrect.h = rect.h;
+    SDL_RenderCopy(self->data, texture->data, NULL, &dstrect);
 }
 
 BcRenderer *bc_renderer_create(BcWindow *window)

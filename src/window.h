@@ -1,15 +1,15 @@
 #ifndef BC_WINDOW_H
 #define BC_WINDOW_H
 
-#include <stdint.h>
-
 #include <SDL2/SDL_video.h>
+
+#include "types.h"
 
 #define BC_WINDOW_WIDTH 800
 #define BC_WINDOW_HEIGHT 600
 
 typedef struct {
-    uint8_t     created;
+    u8          created;
     SDL_Window *data;
 } BcWindow;
 

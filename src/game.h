@@ -1,10 +1,9 @@
 #ifndef BC_GAME_H
 #define BC_GAME_H
 
-#include <stdint.h>
-
 #include "banana.h"
 #include "renderer.h"
+#include "types.h"
 #include "window.h"
 
 #define BC_GAME_TITLE "Banana Clicker"
@@ -15,7 +14,7 @@ typedef struct {
     BcBanana   *banana;
     BcWindow   *window;
     BcRenderer *renderer;
-    uint8_t     running;
+    u8          running;
 } BcAppState;
 
 void bc_game_draw(BcAppState *state);
